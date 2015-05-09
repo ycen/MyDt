@@ -144,7 +144,16 @@ void split(node *p, vector< vector<double> >& mt, vector<int>& cv){
 	split(p->rc, mt, cv);
 }
 
+int predict(node* p, vector<int>& tv)
+{
+	if (p->fvalue == 1) { return 1; };
+	if (p->fvalue == 0) { return 0; };
+	if (tv[p->feature] == 1) { return predict(p->rc, tv); };
+	if (tv[p->feature] == 0) { return predict(p->lc, tv); };
+}
+
 int main(){
+	//-------------------------------------Training---------------------------------------//
 	vector<int> CatValue;
 	ifstream inputs;
 	inputs.open("data.txt");
@@ -166,6 +175,7 @@ int main(){
 		}
 		nt++;
 	}
+	inputs.close();
 	//nt--;
 	mt.resize(nt*nfeature);
 	/*for (int i = 0; i < nfeature; i++)
@@ -179,5 +189,33 @@ int main(){
 	}
 	//cout << root->feature << " " << root->fvalue << endl;
 	split(root, mt, CatValue);
+	//---------------------------------------Predicting---------------------------------//
+	ifstream predictInputs;
+	predictInputs.open("test.txt");
+	int ntest = 0;
+	int nright = 0;
+	while (!predictInputs.eof())
+	{
+		int a;
+		int nouse;
+		predictInputs >> nouse;
+		predictInputs >> a;
+		//CatValue.push_back(a);
+		vector<int> onetest;
+		for (int i = 0; i < nfeature; i++)
+		{
+			int b;
+			predictInputs >> b;
+			onetest.push_back(b);
+		}
+		int result = predict(root, onetest);
+		ntest++;
+		if (result == a)
+		{
+			nright++;
+		}
+	}
+	cout << "test number: " << ntest << endl;
+	cout << "right test: " << nright << endl;
 	return 0;
 }
